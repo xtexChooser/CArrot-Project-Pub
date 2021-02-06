@@ -592,7 +592,7 @@ MapScript.loadModule("Loader", {
 Loader.load(function() {
 
 
-var BuildConfig={"version":"1.2.13","versionCode":[1,2,13],"date":"2020-01-24","licenceUpdate":"2019/9/21","description":"[重要通知]\n您可能需要手动授予命令助手“后台弹出界面”权限，否则系统会拦截或阻止命令助手打开外部App的操作。\n\n新增：\n- ID表与命令库适配1.14.2.51\n- 支持将网易版1.16.5.84547识别为1.13.3.0.0\n- 推送服务支持重要推送以对话框形式显示\n- 加入许可协议与隐私政策\n\n优化：\n- 只会在初次启动时检查权限情况\n- 使用自建反馈平台以替代码云提供的反馈平台\n- 暂时移除Beta计划\n- 将最低支持版本改为Android 4.4\n\n修复：\n- JSON编辑器剪切项目时报错的bug\n- 关于页面无法正常显示的bug\n- 释放适配器时IO出错报错的bug\n- Android 10显示图标报错的bug\n- 拓展包出错时错误信息不能正常显示\n- 重命名收藏夹时提示名称已占用\n\n欢迎加入命令助手交流群303697689","variants":"snapshot","publishTime":1612600626201}
+var BuildConfig={"version":"1.2.13","versionCode":[1,2,13],"date":"2020-01-24","licenceUpdate":"2019/9/21","description":"[重要通知]\n您可能需要手动授予命令助手“后台弹出界面”权限，否则系统会拦截或阻止命令助手打开外部App的操作。\n\n新增：\n- ID表与命令库适配1.14.2.51\n- 支持将网易版1.16.5.84547识别为1.13.3.0.0\n- 推送服务支持重要推送以对话框形式显示\n- 加入许可协议与隐私政策\n\n优化：\n- 只会在初次启动时检查权限情况\n- 使用自建反馈平台以替代码云提供的反馈平台\n- 暂时移除Beta计划\n- 将最低支持版本改为Android 4.4\n\n修复：\n- JSON编辑器剪切项目时报错的bug\n- 关于页面无法正常显示的bug\n- 释放适配器时IO出错报错的bug\n- Android 10显示图标报错的bug\n- 拓展包出错时错误信息不能正常显示\n- 重命名收藏夹时提示名称已占用\n\n欢迎加入命令助手交流群303697689","variants":"snapshot","publishTime":1612600629023}
 
 
 
@@ -5707,10 +5707,22 @@ MapScript.loadModule("CA", {
 				type : "custom",
 				onclick : function() {
 					try {
-						AndroidBridge.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://ca.projectxero.top"))
-							.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
+						AndroidBridge.viewUri("https://ca.projectxero.top");
 					} catch(e) {
 						Common.toast("项目官网打开失败");
+						Log.e(e);
+					}
+				}
+			}, {
+				name : "哔哩哔哩空间",
+				type : "custom",
+				onclick : function() {
+					try {
+						if (!AndroidBridge.viewUri("bilibili://space/76999418")) {
+							AndroidBridge.viewUri("https://space.bilibili.com/76999418");
+						}
+					} catch(e) {
+						Common.toast("哔哩哔哩打开失败");
 						Log.e(e);
 					}
 				}
@@ -5721,25 +5733,10 @@ MapScript.loadModule("CA", {
 					Common.toast("QQ群号已复制至剪贴板");
 					Common.setClipboardText("303697689");
 					try {
-						AndroidBridge.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://jq.qq.com/?_wv=1027&k=57Ac2tp"))
-							.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
+						AndroidBridge.viewUri("https://jq.qq.com/?_wv=1027&k=57Ac2tp");
 					} catch(e) {
 						Log.e(e);
 					}
-				}
-			}, {
-				name : "支持开发",
-				type : "custom",
-				hidden : function() {
-					if (MapScript.host == "Android") {
-						if (ScriptInterface.isOnlineMode()) {
-							return true;
-						}
-					}
-					return false;
-				},
-				onclick : function() {
-					CA.showDonate();
 				}
 			}, {
 				name : "许可协议",
@@ -5762,8 +5759,7 @@ MapScript.loadModule("CA", {
 				type : "custom",
 				onclick : function() {
 					try {
-						AndroidBridge.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse("https://ca.projectxero.top/blog/about/"))
-							.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
+						AndroidBridge.viewUri("https://ca.projectxero.top/blog/about/");
 					} catch(e) {
 						Common.toast("关于页面打开失败");
 						Log.e(e);
@@ -8330,112 +8326,6 @@ MapScript.loadModule("CA", {
 			} catch(e) {erp(e)}}, 1000);
 		});
 	} catch(e) {erp(e)}})},
-	showDonate : function() {
-		var payMethods = {
-			alipay : {
-				name : "支付宝",
-				comments : "请使用支付宝扫描上方二维码",
-				width : 41, height : 41,
-				whiteRect : { x : 17, y : 17, width : 7, height : 7 }
-			},
-			alipay_1 : {
-				name : "支付宝",
-				comments : "请使用支付宝扫描上方二维码",
-				width : 33, height : 33,
-				whiteRect : { x : 14, y : 14, width : 5, height : 5 }
-			},
-			weixin : {
-				name : "微信支付",
-				comments : "请使用微信支付扫描上方二维码",
-				width : 37, height : 37,
-				whiteRect : { x : 14, y : 14, width : 9, height : 9 }
-			}
-		};
-		var list = [{
-			cost : 1,
-			description : "请命令助手作者喝水",
-			qrCodes : [{
-				bytes : "f/O10/2Dnha/CHalKkvU7aKr6qLbRRYtWDcoBmuJ4F9VVVV/gNlOwgBcvw4vzwdJ3m6rxYm2oW1i4CnUDDF/iQIrBsPpkSWz07dirorOZv/F2urIf7rrBjwAaPnn4QP40OCdA0Cj5W4WgAFt4Rfg+P33DQDfkMvSAOc343an7ghD2Tnrfb+HJH5VICXfRr4FNb2DXqYmfclDa/8kyNmp3pEHKEdBUPAn3wBeWSmj/jlRJ1cJwm9KiNG1+uz1v+sg10RxV+Rcq68gXzykSn8I6So4AA==",
-				payMethod : "alipay"
-			}, {
-				bytes : "f90J0T8of00IdjVTcd0uZZOu2yVRVnWDWtuO4F9VVfUHmEQ1AFxB3ut8xRA/LWAHIJ9nnSdlXPTvlO1EEzsAonfTBoCf5ZwAqHVcCgBNNicBgDy6FwCQeQQNAGtzpwCgIQwxAOLicABAeVSIABBG3en///jW5Kw3lQtqLK1eerRan8WEoZ8BJj8jwh8yRFcPEuLUCF2Fa/C9Kw8CMXfl5Q3SIDtb8/UnbRLGAQ==",
-				payMethod : "weixin"
-			}]
-		}, {
-			cost : 2,
-			description : "请命令助手作者喝矿泉水",
-			qrCodes : [{
-				bytes : "f3INJPyDNLWCCXZ1BWbS7Wr0QarbxbtpSjfIZHSM4F9VVVV/ACRSAQDYkke9YXTAeVYxBqNmMknLtCcTPR3sKDnwiNa2e1QvN/sHk8NCLBZIOcolUNmiVogDGqd4dwIsZh2QAmC7QscS4EDflS5gG0WdewAWA9zVgPfx/Jv0WG1iWAz3um8REC7HNhxypMa7hPiuzGIU4rqA2rFadbzyG/zbz3ZXqFyh/wCaARqj/d0ar9cIgqDrjd11f2r+q6ussTVtF++Oj+YgvMgqqX9I8w5xAA==",
-				payMethod : "alipay"
-			}, {
-				bytes : "fwtF2T8IusILdklSfN2uNQSv20Xp0HSDoKeJ4F9VVfUHYHcaAHS9vyNS0WdsAsNbj4qfXvatKbJeMDK9NQIAdkWTBsBePFkAwLNvCQBzEZYBQBzJLQAY51IBgCr/zgBANE4jACRjMwPAv94UADhzan6u0x9hOldMNHeRfUdBJHErGn24Zn8BEio18p+iudQOyrLNyF3zDfO7C0RfPnS95WrSIG8MRPnHc7W4AQ==",
-				payMethod : "weixin"
-			}]
-		}, {
-			cost : 3,
-			description : "请命令助手作者喝可乐",
-			qrCodes : [{
-				bytes : "f0CMMPyDnGWAC3Z1/kTU7QpVAKrbRepsSjfIdESM4F9VVVV/ACSSAQDYkk+9YQjEPVY1kjnuMmmzgDUSfYHUb3zwWGb82lAvFbHDksNGS1Vo+U4LHZmjdeACmqc83wYoZg0QCJizYgQOsEidtTZAG8W0P0CWglWZgP/yRpr8WG0EGgj3vg6TgTfnBD1TlAaD3cmszGrlF2yA2hPQ0bTy22dVzTZTcEix/wCmAp6i/fWs5VcJgj5Bjd0V1qb+qSslmgVtF6/Ir+Yg9AQqqX/Icw5xAA==",
-				payMethod : "alipay"
-			}, {
-				bytes : "f8NB0T+oitsJdkmfcd2uAVSu2zX6snWDRguE4F9VVfUHIG+ZAEi4DZebdn1tHLqz/YHBRFXuv/n1uDK1Cw8AYk3YBEB1llkAwLDbDQAHNCcAQDnYDQAo594DgGSuVABgxkoRAGwDvwZAmvd5ACjYY2KysRgHnJbYtDuWz0nPrX0rs/3iUr8BzgAv4p+yCNQO4sfJ6F2sivWzq1FcPnTpIzHcIG+h3f9HchGaAQ==",
-				payMethod : "weixin"
-			}]
-		}, {
-			cost : 5,
-			description : "请命令助手作者吃面",
-			qrCodes : [{
-				bytes : "f//lZfyDwM6vCHZlJkjU7SJjAarbFVY5WDdIBnyK4F9VVVV/gBASygBgtoYvVUmHPVYlTou2qS066C+mHJn/KU3w0Fd6l2Cj8rFQp4pEsvVreWpS6rlrNgAD9H/6TwIo5rRMAjC3wV4IYAHPoBTgG4XXawDbEEXTgON1WpJ0WG0K33z/eQobpH512ARDt4bDJP/kXi5jdPsG+xAFJbTymPeiDAbBvGo0XwCW152j/RFWLlcJarXVjNXlfgz+q4sYcTVhF+Aaq68geAwqqX8I6So4AA==",
-				payMethod : "alipay"
-			}, {
-				bytes : "f8mBzT8oft8KdvXWEd0ubfus2yX2U3WDDluO4F9VVfUHWOUFAFwhkP78IPMsK3NXPp8DH+fsXH2MdOWVezMAoPXVBoCYJb0AkHd2DACMl4MAgDOWVQA8YYQBgFhxPwDgRQ4nAGISuALA+UE0ABA2z837D75jZCwTNk8MbLfMPL5eWE40sZ8Bbjkhwh/bfFUPAvalCF2HX/29KwspMHclQBvEIOdjMfWnZKfJAQ==",
-				payMethod : "weixin"
-			}]
-		}, {
-			cost : 10,
-			description : "请命令助手作者吃盖浇饭",
-			qrCodes : [{
-				bytes : "f8oCCfyD2kOhCXaRgcvR7dJtKqXbZZTHQDdoK4y44F9VVVV/gFPp/gDw3LapjCrOr3Z8DO2iZlwGOCNZL5UHILETyLKY01D/vGV4q02UntfeVGB52SCIOssA/v7ueQQwpXQcCABAPbUV0DFhkyOgiWH7TEDD1lDQANu5QJ0XYOE5GEz3vkptOaBERNHG+h19DkBDZig3xpo2N7E5rs1uBgOWM4nPAbyrPwCKHjOi/51f6lYMqmOEj9nVdh39swu+ghVtF0FJl+ggHRecxH/i2aTbAA==",
-				payMethod : "alipay"
-			}, {
-				bytes : "f1up2T+oqJ8Jdol7K92uNTSv2zVc8HWDNm+E4F9VVfUHQO2KAEiUUZebxETfDeqVjcGpABxnszD+KDrEMwsAQM9RBUBdVlkAmLL2GwDUNYYAYCHgDwDk494PgCH/VAFg4kwmAGxzHwJAGn11ABi4+X3t4VhTnReTlAWIjwVBLXcv/9SKUr8Bjkc94h/7sNYO8tmo6F0Ym/Wzq09rT3TpBCTaII+VEf9HfwfTAQ==",
-				payMethod : "weixin"
-			}]
-		}, {
-			description : "为命令助手作者提供开发的动力",
-			qrCodes : [{
-				bytes : "f9mw/YPCKwt2Pf3Q7ULEq9ulzUc3aGK64F9VVX+AlHMAXIPkzzUxR0N4v9OEGdTIL65t87u5ot0qPVwGmh+RAaivRT3I4FZoUKAIU4DrF7zmckTkp7ghpu2qRhR4xeQWVKxi0VQ7vwGSnqP8IQtXDHIGiNd1gPa5K3YkX1e31JEgvDydfwroWQA=",
-				payMethod : "alipay_1",
-				comments : "请使用支付宝扫描上方二维码\n请适度发电"
-			}, {
-				bytes : "f3WozD8oSMsIdlXXUd0uTdOv26VxU3WDzgOO4F9VVfUHqJcmAFwzsu28EQmkFkBVHJ8XBebqXHflvP2lAzcAsGRWB0D/VbwA4HJkCQBe9gYAIACiVQD0/4IFAGoBNwDAASwjAOrWFAbAeU+ZACDFTuDmH7izxiQi1hkILN+cvL8eVEwsoV8Baj4ywp8b9VYPMsTyCF23KvC9Kwe6EHeFQhnEIFP38vSnaWKhAQ==",
-				payMethod : "weixin",
-				comments : "请使用微信支付扫描上方二维码\n请适度发电"
-			}]
-		}];
-		Common.showListChooser(list.map(function(e) {
-			return {
-				text : e.description,
-				description : isNaN(e.cost) ? "自定义捐助" : "捐助 " + e.cost + " 元"
-			};
-		}), function(pos) {
-			var element = list[pos];
-			CA.showDonateDialog(element.qrCodes.map(function(e) {
-				var pm = payMethods[e.payMethod];
-				return {
-					name : pm.name,
-					title : isNaN(element.cost) ? "捐助" : element.cost.toFixed(2) + " 元",
-					description : element.description,
-					comments : e.comments || element.comments || pm.comments,
-					qrCode : {
-						width : pm.width, height : pm.height,
-						whiteRect : pm.whiteRect,
-						bytes : e.bytes
-					}
-				};
-			}));
-		});
-	},
 	chooseIDList : function(callback) {
 		var allIds = [];
 		var r = CA.IntelliSense.library.idlist.map(function(e) {
@@ -12199,7 +12089,7 @@ MapScript.loadModule("CA", {
 			};
 			this.input = Object.keys(this.output);
 			pp.append("命令助手 - 设置 & 关于\n");
-			appendSSB(pp, "（这个命令的用途是显示帮助，不过你有这个JS就不需要帮助了吧）", new G.ForegroundColorSpan(Common.theme.promptcolor));
+			appendSSB(pp, "（这个命令的用途是显示帮助，不过你有这个工具就不需要帮助了吧）", new G.ForegroundColorSpan(Common.theme.promptcolor));
 			this.prompt = [pp];
 			this.help = "https://ca.projectxero.top/blog/about/";
 			this.patterns = [];
@@ -19951,10 +19841,11 @@ MapScript.loadModule("AndroidBridge", {
 	foregroundTask : {},
 	onCreate : function() {
 		G.ui(this.initIcon);
+		if (MapScript.host != "Android") return;
+		if (CA.RELEASE) gHandler.post(this.verifyApk);
 	},
 	initialize : function() {try {
 		if (MapScript.host != "Android") return;
-		if (CA.RELEASE) gHandler.post(this.verifyApk);
 		ScriptInterface.setBridge({
 			applyIntent : function(intent) {try {
 				AndroidBridge.callHide();
@@ -20744,6 +20635,9 @@ MapScript.loadModule("AndroidBridge", {
 			}
 		});
 	},
+	viewUri : function(uri) {
+		return AndroidBridge.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(uri)));
+	},
 	createShortcut : function(intent, name, icon) {
 		if (android.os.Build.VERSION.SDK_INT >= 26) {
 			if (ScriptInterface.isForeground()) {
@@ -21284,7 +21178,14 @@ MapScript.loadModule("NeteaseAdapter", {
 	},
 	getNeteaseVersion : function(packageName) {
 		var c = ctx.getPackageManager().getPackageInfo(packageName, 0).versionCode;
-		if (c >= 840084547) { // 1.16.5.84547
+		this.supportWS = c >= 840035545 && c < 840094571;
+		if (c >= 840105182) { // 1.19.10.105182
+			return "1.14.31.0.0";
+		} else if (c >= 840099153) { // 1.18.10.99153
+			return "1.14.30.0.0";
+		} else if (c >= 840091142) { // 1.17.5.91142
+			return "1.13.4.0.0";
+		} else if (c >= 840084547) { // 1.16.5.84547
 			return "1.13.3.0.0";
 		} else if (c >= 840075495) { //1.15.0.75495
 			return "1.12.0.28.1";
@@ -22207,8 +22108,7 @@ MapScript.loadModule("UserManager", {
 	},
 	saveToken : function(result) {
 		this.accessToken = result.accessToken;
-		result.expiredDate = Date.now() + result.expiredIn * 1000;
-		this.accessData = CA.settings.userSettings = result;
+		this.accessData = CA.settings.userSettings = { refreshToken : result.refreshToken };
 		this.updateUserInfo();
 	},
 	clearToken : function() {
@@ -22292,7 +22192,13 @@ MapScript.loadModule("UserManager", {
 		return this.userInfo ? this.userInfo.status == 999 : false;
 	},
 	isOnline : function() {
-		return MapScript.host == "Android" && ScriptInterface.isOnlineMode();
+		return MapScript.host == "Android" && ScriptInterface.isOnlineMode() && this.userInfo != null;
+	},
+	getOfflineReason : function() {
+		if (MapScript.host != "Android") {
+			return "目前您使用的命令助手的版本不支持在线模式，请更换为APP版本。";
+		}
+		return ScriptInterface.getOfflineReason() || "未提供";
 	},
 	getLevelExp : function(level) {
 		if (level > 0 && level <= 15) {
@@ -22322,8 +22228,22 @@ MapScript.loadModule("UserManager", {
 		};
 	},
 	expQueue : new java.util.concurrent.ConcurrentLinkedQueue(),
+	reasons : {
+		"checkin" : {
+			name : "签到",
+			exp : 2
+		},
+		"copyCommand" : {
+			name : "复制命令",
+			exp : 1
+		},
+		"createTemplate" : {
+			name : "创建批量生成模板",
+			exp : 2
+		}
+	},
 	enqueueExp : function(reason) {
-		if (this.isOnline()) {
+		if (this.isOnline() && this.expQueue.size() < 20 && reason in this.reasons) {
 			this.expQueue.add(reason);
 		}
 	},
@@ -22332,22 +22252,24 @@ MapScript.loadModule("UserManager", {
 	},
 	syncExp : function() {
 		var queue = this.expQueue;
-		var e, list = [], result, checkInExp = 0;
-		if (!this.hasExpToSync()) return 0;
+		var e, list = [], result, checkInExp = 0, reasons = {};
+		if (!this.isOnline()) return { offline : true };
 		if (!this.userInfo.checkedIn) {
 			checkInExp = this.checkIn().add;
-			this.userInfo.checkedIn = true;
+			reasons["checkin"] = 1;
 		}
 		e = queue.poll();
 		while (e != null) {
 			list.push(e);
+			reasons[e] = e in reasons ? reasons[e] + 1 : 1;
 			e = queue.poll();
 		}
 		if (list.length == 0) list = ["info"];
 		result = this.addExp(list);
-		this.userInfo.experience = result.experience;
 		result.add += checkInExp;
-		return result.add;
+		result.reasons = reasons;
+		this.updateUserInfo();
+		return result;
 	},
 	processUriAction : function(type, query) {
 		if (type == "login") {
@@ -22663,8 +22585,7 @@ MapScript.loadModule("UserManager", {
 				dia.setText("正在使用命令助手登录...");
 				try {
 					authToken = realThis.authorize();
-					AndroidBridge.startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW, android.net.Uri.parse(query.redirect + "?token=" + encodeURIComponent(authToken)))
-						.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK));
+					AndroidBridge.viewUri(query.redirect + "?token=" + encodeURIComponent(authToken));
 				} catch(e) {
 					Log.e(e);
 					return Common.toast("使用命令助手登录失败\n" + e);
@@ -22807,12 +22728,7 @@ MapScript.loadModule("UserManager", {
 				dia.setText("正在同步经验...");
 				try {
 					result = realThis.syncExp();
-					if (result > 0) {
-						Common.toast("同步经验成功\n已增加" + result + "点经验");
-					} else {
-						Common.toast("同步经验成功");
-					}
-					if (callback) callback();
+					realThis.showExpManage(result, callback);
 				} catch(e) {
 					Log.e(e);
 					Common.toast("同步经验失败\n" + e);
@@ -22820,6 +22736,302 @@ MapScript.loadModule("UserManager", {
 			});
 		}
 	},
+	showExpManage : function(expAdd, callback) { var realThis = this; G.ui(function() {try {
+		var i, reasonInfo, reasonCount, popup, userInfo = realThis.userInfo, viewList = [];
+		var exp = realThis.parseExpLevel(userInfo.experience);
+		var mode = expAdd == null ? "offline" : expAdd.add > 0 ? "add" : expAdd.today_experience >= expAdd.max_today_exp ? "info_full" : "info";
+		var checkedIn = expAdd != null && expAdd.reasons["checkin"] > 0;
+		viewList.push(
+			L.TextView({
+				text : "每日经验",
+				padding : [0, 0, 0, 15 * G.dp],
+				layout : { width : -1, height : -2 },
+				gravity : L.Gravity("center"),
+				style : "textview_default",
+				fontSize : 4
+			})
+		);
+		if (mode == "offline") {
+			viewList.push(
+				L.TextView({
+					text : "当前命令助手运行在离线模式下，签到与经验系统自动被禁用。\n\n技术原因：\n" + realThis.getOfflineReason(),
+					padding : [0, 10 * G.dp, 0, 10 * G.dp],
+					layout : { width : -1, height : -2 },
+					style : "textview_default",
+					fontSize : 1
+				}),
+				L.TextView({
+					text : "了解详情",
+					padding : [0, 15 * G.dp, 0, 15 * G.dp],
+					gravity : L.Gravity("left"),
+					layout : { width : -1, height : -2 },
+					style : "button_highlight",
+					fontSize : 3,
+					onClick : function() {try {
+						AndroidBridge.viewUri("https://ca.projectxero.top/blog/notice/why-show-ads/");
+						popup.exit();
+					} catch(e) {erp(e)}}
+				})
+			);
+		} else {
+			viewList.push(
+				L.LinearLayout({
+					orientation : L.LinearLayout("horizontal"),
+					backgroundColor : Common.theme.textcolor,
+					layout : { width : -1, height : 2 * G.dp },
+					weightSum : expAdd.max_today_exp,
+					child : L.View({
+						backgroundColor : Common.theme.criticalcolor,
+						layout : { width : 0, height : -1, weight : expAdd.today_experience }
+					})
+				}),
+				L.LinearLayout({
+					orientation : L.LinearLayout("horizontal"),
+					layout : { width : -1, height : -2 },
+					padding : [0, 0, 0, 5 * G.dp],
+					children : [
+						L.TextView({
+							text : mode == "add" ? "+" + expAdd.add + (expAdd.today_experience >= expAdd.max_today_exp ? "(到达上限)" : "") : "今日获得",
+							layout : { width : -2, height : -2, weight : 1.0 },
+							style : "textview_default",
+							fontSize : 1
+						}),
+						L.TextView({
+							text : expAdd.today_experience + "/" + expAdd.max_today_exp,
+							layout : { width : -2, height : -2 },
+							style : "textview_default",
+							fontSize : 1
+						})
+					]
+				})
+			);
+			if (mode == "add") {
+				for (i in expAdd.reasons) {
+					reasonCount = expAdd.reasons[i];
+					reasonInfo = realThis.reasons[i];
+					viewList.push(
+						L.LinearLayout({
+							orientation : L.LinearLayout("horizontal"),
+							gravity : L.Gravity("center"),
+							layout : { width : -1, height : -2 },
+							children : [
+								L.TextView({
+									text : reasonInfo.name,
+									padding : [0, 10 * G.dp, 0, 10 * G.dp],
+									gravity : L.Gravity("left"),
+									layout : { width : -2, height : -2 },
+									style : "textview_default",
+									fontSize : 3
+								}),
+								L.TextView({
+									text : "(" + reasonCount + "次)",
+									visibility : L.View(reasonCount > 1 ? "visible" : "gone"),
+									layout : { width : -2, height : -2 },
+									style : "textview_prompt",
+									fontSize : 1
+								}),
+								L.Space({
+									layout : { width : 0, height : -1, weight : 1.0 }
+								}),
+								L.TextView({
+									text : "+" + (reasonCount * reasonInfo.exp),
+									layout : { width : -2, height : -2 },
+									style : "textview_prompt",
+									fontSize : 1
+								})
+							]
+						})
+					);
+				}
+			} else if (mode == "info") {
+				viewList.push(
+					L.TextView({
+						text : "获取途径",
+						padding : [0, 20 * G.dp, 0, 15 * G.dp],
+						layout : { width : -1, height : -2 },
+						gravity : L.Gravity("center"),
+						style : "textview_default",
+						fontSize : 4
+					})
+				);
+				for (i in realThis.reasons) {
+					reasonInfo = realThis.reasons[i];
+					viewList.push(
+						L.LinearLayout({
+							orientation : L.LinearLayout("horizontal"),
+							gravity : L.Gravity("center"),
+							layout : { width : -1, height : -2 },
+							children : [
+								L.TextView({
+									text : reasonInfo.name,
+									padding : [0, 10 * G.dp, 0, 10 * G.dp],
+									gravity : L.Gravity("left"),
+									layout : { width : -2, height : -2 },
+									style : "textview_default",
+									fontSize : 3
+								}),
+								L.Space({
+									layout : { width : 0, height : -1, weight : 1.0 }
+								}),
+								L.TextView({
+									text : "+" + reasonInfo.exp,
+									layout : { width : -2, height : -2 },
+									style : "textview_prompt",
+									fontSize : 1
+								})
+							]
+						})
+					);
+				}
+			} else {
+				viewList.push(
+					L.TextView({
+						text : "本日获取经验\n已到达上限",
+						padding : [0, 20 * G.dp, 0, 15 * G.dp],
+						layout : { width : -1, height : -2 },
+						gravity : L.Gravity("center"),
+						style : "textview_prompt",
+						fontSize : 3
+					})
+				);
+			}
+		}
+		viewList.push(
+			L.Space({
+				layout : { width : -1, height : 0, weight : 1.0 }
+			}),
+			L.TextView({
+				text : "签到",
+				padding : [0, 20 * G.dp, 0, 15 * G.dp],
+				layout : { width : -1, height : -2 },
+				gravity : L.Gravity("center"),
+				style : "textview_default",
+				fontSize : 4
+			}),
+			L.LinearLayout({
+				orientation : L.LinearLayout("horizontal"),
+				gravity : L.Gravity("center"),
+				layout : { width : -1, height : -2 },
+				children : [
+					L.TextView({
+						text : "连续签到",
+						padding : [0, 10 * G.dp, 0, 10 * G.dp],
+						gravity : L.Gravity("left"),
+						layout : { width : -2, height : -2, weight : 1.0 },
+						style : "textview_default",
+						fontSize : 3
+					}),
+					L.TextView({
+						text : userInfo.checkInContinuousDays + "天",
+						layout : { width : -2, height : -2 },
+						style : "textview_default",
+						fontSize : 1
+					}),
+					L.TextView({
+						text : "(+1)",
+						visibility : L.View(checkedIn ? "visible" : "gone"),
+						layout : { width : -2, height : -2 },
+						style : "textview_prompt",
+						fontSize : 1
+					})
+				]
+			}),
+			L.LinearLayout({
+				orientation : L.LinearLayout("horizontal"),
+				gravity : L.Gravity("center"),
+				layout : { width : -1, height : -2 },
+				children : [
+					L.TextView({
+						text : "累计签到",
+						padding : [0, 10 * G.dp, 0, 10 * G.dp],
+						gravity : L.Gravity("left"),
+						layout : { width : -2, height : -2, weight : 1.0 },
+						style : "textview_default",
+						fontSize : 3
+					}),
+					L.TextView({
+						text : userInfo.checkInTotalDays + "天",
+						layout : { width : -2, height : -2 },
+						style : "textview_default",
+						fontSize : 1
+					}),
+					L.TextView({
+						text : "(+1)",
+						visibility : L.View(checkedIn ? "visible" : "gone"),
+						layout : { width : -2, height : -2 },
+						style : "textview_prompt",
+						fontSize : 1
+					}),
+				]
+			}),
+			L.TextView({
+				text : "累计经验",
+				padding : [0, 20 * G.dp, 0, 15 * G.dp],
+				layout : { width : -1, height : -2 },
+				gravity : L.Gravity("center"),
+				style : "textview_default",
+				fontSize : 4
+			}),
+			L.LinearLayout({
+				orientation : L.LinearLayout("horizontal"),
+				backgroundColor : Common.theme.promptcolor,
+				layout : { width : -1, height : 2 * G.dp },
+				weightSum : exp.levelExp,
+				children : [
+					L.View({
+						backgroundColor : Common.theme.highlightcolor,
+						layout : { width : 0, height : -1, weight : exp.rest }
+					}),
+					mode != "offline" ? L.View({
+						backgroundColor : Common.theme.textcolor,
+						layout : { width : 0, height : -1, weight : expAdd.max_today_exp - expAdd.today_experience }
+					}) : L.View({ visibility : L.View("gone") })
+				]
+			}),
+			L.LinearLayout({
+				orientation : L.LinearLayout("horizontal"),
+				layout : { width : -1, height : -2 },
+				padding : [0, 0, 0, 5 * G.dp],
+				children : [
+					L.TextView({
+						text : "Lv. " + exp.level,
+						layout : { width : -2, height : -2, weight : 1.0 },
+						style : "textview_default",
+						fontSize : 1
+					}),
+					L.TextView({
+						text : exp.rest + "/" + exp.levelExp,
+						layout : { width : -2, height : -2 },
+						style : "textview_default",
+						fontSize : 1
+					}),
+				]
+			}),
+			L.TextView({
+				text : "关闭",
+				padding : [10 * G.dp, 20 * G.dp, 10 * G.dp, 20 * G.dp],
+				gravity : L.Gravity("center"),
+				layout : { width : -1, height : -2 },
+				style : "button_critical",
+				fontSize : 3,
+				onClick : function() {try {
+					popup.exit();
+				} catch(e) {erp(e)}}
+			})
+		);
+		popup = PopupPage.showSideBar("usermanager.ExpManage", L.ScrollView({
+			style : "message_bg",
+			fillViewport : true,
+			child : L.LinearLayout({
+				orientation : L.LinearLayout("vertical"),
+				padding : [20 * G.dp, 20 * G.dp, 20 * G.dp, 0],
+				layout : { width : -1, height : -1 },
+				children : viewList
+			})
+		}), "left", 160 * G.dp, 0.2);
+		if (callback) popup.on("exit", callback);
+		popup.enter();
+	} catch(e) {erp(e)}})},
 	getSettingItem : function() {
 		var realThis = this;
 		return {
@@ -22909,7 +23121,7 @@ MapScript.loadModule("UserManager", {
 							if (realThis.isOnline()) {
 								realThis.showSyncExp(callback);
 							} else {
-								Common.toast("同步经验成功");
+								realThis.showExpManage(null);
 							}
 							popup.exit();
 						} catch(e) {erp(e)}}
@@ -26804,12 +27016,12 @@ switch (Intl.lookupLang({
 CA.Library.inner["default"] = {
 	"name": "默认命令库",
 	"author": "CA制作组",
-	"description": "该命令库基于Minecraft PE 1.14.2.51 的命令，大部分由CA制作组成员ProjectXero整理。该命令库包含部分未来特性。",
+	"description": "该命令库基于Minecraft PE 1.16.0.59 的命令，大部分由CA制作组成员ProjectXero整理。",
 	"uuid": "acf728c5-dd5d-4a38-b43d-7c4f18149fbd",
-	"version": [0, 0, 1],
+	"version": [1, 0, 0],
 	"require": [],
 	"minSupportVer": "0.7.4",
-	"targetSupportVer": "1.14.2.51",
+	"targetSupportVer": "1.16.0.59",
 	"commands": {},
 	"idlist": [
 		{
@@ -26842,10 +27054,7 @@ CA.Library.inner["default"] = {
 		},
 		{
 			"name": "游戏规则",
-			"lists": [
-				"gamerule_bool",
-				"gamerule_int"
-			]
+			"lists": ["gamerule_bool", "gamerule_int"]
 		},
 		{
 			"name": "生物事件",
@@ -26856,20 +27065,23 @@ CA.Library.inner["default"] = {
 		"block": {
 			"acacia_button": "金合欢木按钮",
 			"acacia_door": "金合欢木门",
-			"acacia_fence_gate": "金合欢栅栏门",
+			"acacia_fence_gate": "金合欢木栅栏门",
 			"acacia_pressure_plate": "金合欢木压力板",
-			"acacia_stairs": "金合欢楼梯",
+			"acacia_stairs": "金合欢木楼梯",
 			"acacia_standing_sign": "金合欢木告示牌",
 			"acacia_trapdoor": "金合欢木活板门",
 			"acacia_wall_sign": "墙上的金合欢木告示牌",
 			"activator_rail": "激活铁轨",
 			"air": "空气",
+			"allow": "允许方块",
+			"ancient_debris": "远古残骸",
 			"andesite_stairs": "安山岩楼梯",
 			"anvil": "铁砧",
 			"bamboo": "竹子",
 			"bamboo_sapling": "竹笋",
 			"barrel": "木桶",
 			"barrier": "屏障",
+			"basalt": "玄武岩",
 			"beacon": "信标",
 			"bed": "床",
 			"bedrock": "基岩",
@@ -26886,14 +27098,20 @@ CA.Library.inner["default"] = {
 			"birch_trapdoor": "白桦木活板门",
 			"birch_wall_sign": "墙上的白桦木告示牌",
 			"black_glazed_terracotta": "黑色带釉陶瓦",
+			"blackstone": "黑石",
+			"blackstone_double_slab": "双层黑石台阶",
+			"blackstone_slab": "黑石台阶",
+			"blackstone_stairs": "黑石楼梯",
+			"blackstone_wall": "黑石墙",
 			"blast_furnace": "高炉",
 			"blue_glazed_terracotta": "蓝色带釉陶瓦",
 			"blue_ice": "蓝冰",
 			"bone_block": "骨块",
 			"bookshelf": "书架",
+			"border_block": "边界方块",
 			"brewing_stand": "酿造台",
 			"brick_block": "砖块",
-			"brick_stairs": "砖块楼梯",
+			"brick_stairs": "砖楼梯",
 			"brown_glazed_terracotta": "棕色带釉陶瓦",
 			"brown_mushroom": "棕色蘑菇",
 			"brown_mushroom_block": "棕色蘑菇",
@@ -26907,8 +27125,11 @@ CA.Library.inner["default"] = {
 			"cartography_table": "制图台",
 			"carved_pumpkin": "雕刻过的南瓜",
 			"cauldron": "炼药锅",
+			"chain": "锁链",
 			"chain_command_block": "连锁型命令方块",
 			"chest": "箱子",
+			"chiseled_nether_bricks": "錾制下界砖块",
+			"chiseled_polished_blackstone": "錾制磨制黑石",
 			"chorus_flower": "紫颂花",
 			"chorus_plant": "紫颂植物",
 			"clay": "粘土块",
@@ -26925,11 +27146,31 @@ CA.Library.inner["default"] = {
 			"coral": "珊瑚",
 			"coral_block": "珊瑚块",
 			"coral_fan": "珊瑚扇",
-			"coral_fan_dead": "死亡珊瑚扇",
-			"coral_fan_hang": "",
-			"coral_fan_hang2": "",
-			"coral_fan_hang3": "",
+			"coral_fan_dead": "失活的珊瑚扇",
+			"coral_fan_hang": "墙上的珊瑚扇",
+			"coral_fan_hang2": "墙上的珊瑚扇",
+			"coral_fan_hang3": "墙上的珊瑚扇",
+			"cracked_nether_bricks": "裂纹下界砖块",
+			"cracked_polished_blackstone_bricks": "裂纹磨制黑石砖",
 			"crafting_table": "工作台",
+			"crimson_button": "绯红木按钮",
+			"crimson_door": "绯红木门",
+			"crimson_double_slab": "双层绯红木台阶",
+			"crimson_fence": "绯红木栅栏",
+			"crimson_fence_gate": "绯红木栅栏门",
+			"crimson_fungus": "绯红菌",
+			"crimson_hyphae": "绯红菌核",
+			"crimson_nylium": "绯红菌岩",
+			"crimson_planks": "绯红木板",
+			"crimson_pressure_plate": "绯红木压力板",
+			"crimson_roots": "绯红菌索",
+			"crimson_slab": "绯红木台阶",
+			"crimson_stairs": "绯红木楼梯",
+			"crimson_standing_sign": "绯红木告示牌",
+			"crimson_stem": "绯红菌柄",
+			"crimson_trap_door": "绯红木活板门",
+			"crimson_wall_sign": "墙上的绯红木告示牌",
+			"crying_obsidian": "哭泣的黑曜石",
 			"cyan_glazed_terracotta": "青色带釉陶瓦",
 			"dark_oak_button": "深色橡木按钮",
 			"dark_oak_door": "深色橡木门",
@@ -26940,9 +27181,10 @@ CA.Library.inner["default"] = {
 			"dark_prismarine_stairs": "暗海晶石楼梯",
 			"darkoak_standing_sign": "深色橡木告示牌",
 			"darkoak_wall_sign": "墙上的深色橡木告示牌",
-			"daylight_detector": "阳光传感器",
-			"daylight_detector_inverted": "反向阳光传感器",
+			"daylight_detector": "阳光探测器",
+			"daylight_detector_inverted": "反向阳光探测器",
 			"deadbush": "枯萎的灌木",
+			"deny": "拒绝方块",
 			"detector_rail": "探测铁轨",
 			"diamond_block": "钻石块",
 			"diamond_ore": "钻石矿石",
@@ -26950,11 +27192,11 @@ CA.Library.inner["default"] = {
 			"dirt": "泥土",
 			"dispenser": "发射器",
 			"double_plant": "向日葵",
-			"double_stone_slab": "双石台阶",
-			"double_stone_slab2": "双红砂岩台阶",
-			"double_stone_slab3": "双石台阶",
-			"double_stone_slab4": "双石台阶",
-			"double_wooden_slab": "双木台阶",
+			"double_stone_slab": "双层石质台阶",
+			"double_stone_slab2": "双层石质台阶",
+			"double_stone_slab3": "双层石质台阶",
+			"double_stone_slab4": "双层石质台阶",
+			"double_wooden_slab": "双层木制台阶",
 			"dragon_egg": "龙蛋",
 			"dried_kelp_block": "干海带块",
 			"dropper": "投掷器",
@@ -26980,6 +27222,7 @@ CA.Library.inner["default"] = {
 			"frame": "物品展示框",
 			"frosted_ice": "霜冰",
 			"furnace": "熔炉",
+			"gilded_blackstone": "镶金黑石",
 			"glass": "玻璃",
 			"glass_pane": "玻璃板",
 			"glowingobsidian": "发光的黑曜石",
@@ -26996,7 +27239,7 @@ CA.Library.inner["default"] = {
 			"grindstone": "砂轮",
 			"hardened_clay": "硬化粘土",
 			"hay_block": "干草块",
-			"heavy_weighted_pressure_plate": "测重压力板（重质）",
+			"heavy_weighted_pressure_plate": "重质测重压力板",
 			"honey_block": "蜂蜜块",
 			"honeycomb_block": "蜜脾块",
 			"hopper": "漏斗",
@@ -27032,7 +27275,7 @@ CA.Library.inner["default"] = {
 			"lever": "拉杆",
 			"light_block": "光源方块",
 			"light_blue_glazed_terracotta": "淡蓝色带釉陶瓦",
-			"light_weighted_pressure_plate": "测重压力板（轻质）",
+			"light_weighted_pressure_plate": "轻质测重压力板",
 			"lime_glazed_terracotta": "黄绿色带釉陶瓦",
 			"lit_blast_furnace": "燃烧中的高炉",
 			"lit_furnace": "燃烧中的熔炉",
@@ -27047,19 +27290,22 @@ CA.Library.inner["default"] = {
 			"magma": "岩浆块",
 			"melon_block": "西瓜",
 			"melon_stem": "西瓜梗",
-			"mob_spawner": "刷怪箱",
-			"monster_egg": "怪物蛋",
+			"mob_spawner": "刷怪笼",
+			"monster_egg": "被虫蚀的方块",
 			"mossy_cobblestone": "苔石",
 			"mossy_cobblestone_stairs": "苔石楼梯",
 			"mossy_stone_brick_stairs": "苔石砖楼梯",
 			"movingblock": "被活塞推动的方块",
 			"mycelium": "菌丝",
-			"nether_brick": "地狱砖块",
-			"nether_brick_fence": "地狱砖栅栏",
-			"nether_brick_stairs": "地狱砖楼梯",
-			"nether_wart": "地狱疣",
-			"nether_wart_block": "地狱疣块",
-			"netherrack": "地狱岩",
+			"nether_brick": "下界砖块",
+			"nether_brick_fence": "下界砖栅栏",
+			"nether_brick_stairs": "下界砖楼梯",
+			"nether_gold_ore": "下界金矿石",
+			"nether_sprouts": "下界苗",
+			"nether_wart": "下界疣",
+			"nether_wart_block": "下界疣块",
+			"netherite_block": "下界合金块",
+			"netherrack": "下界岩",
 			"netherreactor": "下界反应核",
 			"normal_stone_stairs": "石楼梯",
 			"noteblock": "音符盒",
@@ -27074,9 +27320,22 @@ CA.Library.inner["default"] = {
 			"planks": "木板",
 			"podzol": "灰化土",
 			"polished_andesite_stairs": "磨制安山岩楼梯",
+			"polished_basalt": "磨制玄武岩",
+			"polished_blackstone": "磨制黑石",
+			"polished_blackstone_brick_double_slab": "双层磨制黑石砖台阶",
+			"polished_blackstone_brick_slab": "磨制黑石砖台阶",
+			"polished_blackstone_brick_stairs": "磨制黑石砖楼梯",
+			"polished_blackstone_brick_wall": "磨制黑石砖墙",
+			"polished_blackstone_bricks": "磨制黑石砖",
+			"polished_blackstone_button": "磨制黑石按钮",
+			"polished_blackstone_double_slab": "双层磨制黑石台阶",
+			"polished_blackstone_pressure_plate": "磨制黑石压力板",
+			"polished_blackstone_slab": "磨制黑石台阶",
+			"polished_blackstone_stairs": "磨制黑石楼梯",
+			"polished_blackstone_wall": "磨制黑石墙",
 			"polished_diorite_stairs": "磨制闪长岩楼梯",
 			"polished_granite_stairs": "磨制花岗岩楼梯",
-			"portal": "下界传送门",
+			"portal": "下界传送门方块",
 			"potatoes": "马铃薯",
 			"powered_comparator": "充能的红石比较器",
 			"powered_repeater": "充能的红石中继器",
@@ -27087,8 +27346,9 @@ CA.Library.inner["default"] = {
 			"pumpkin_stem": "南瓜梗",
 			"purple_glazed_terracotta": "紫色带釉陶瓦",
 			"purpur_block": "紫珀块",
-			"purpur_stairs": "紫珀块楼梯",
+			"purpur_stairs": "紫珀楼梯",
 			"quartz_block": "石英块",
+			"quartz_bricks": "石英砖",
 			"quartz_ore": "下界石英矿石",
 			"quartz_stairs": "石英楼梯",
 			"rail": "铁轨",
@@ -27096,8 +27356,8 @@ CA.Library.inner["default"] = {
 			"red_glazed_terracotta": "红色带釉陶瓦",
 			"red_mushroom": "红色蘑菇",
 			"red_mushroom_block": "红色蘑菇",
-			"red_nether_brick": "红色地狱砖块",
-			"red_nether_brick_stairs": "红色地狱砖楼梯",
+			"red_nether_brick": "红色下界砖块",
+			"red_nether_brick_stairs": "红色下界砖楼梯",
 			"red_sandstone": "红砂岩",
 			"red_sandstone_stairs": "红砂岩楼梯",
 			"redstone_block": "红石块",
@@ -27108,6 +27368,7 @@ CA.Library.inner["default"] = {
 			"reeds": "甘蔗",
 			"repeating_command_block": "循环型命令方块",
 			"reserved6": "reserved6",
+			"respawn_anchor": "重生锚",
 			"sand": "沙子",
 			"sandstone": "砂岩",
 			"sandstone_stairs": "砂岩楼梯",
@@ -27116,6 +27377,7 @@ CA.Library.inner["default"] = {
 			"sealantern": "海晶灯",
 			"sea_pickle": "海泡菜",
 			"seagrass": "海草",
+			"shroomlight": "菌光体",
 			"shulker_box": "潜影盒",
 			"silver_glazed_terracotta": "淡灰色带釉陶瓦",
 			"skull": "生物头颅",
@@ -27128,13 +27390,18 @@ CA.Library.inner["default"] = {
 			"smooth_stone": "平滑石头",
 			"snow": "雪块",
 			"snow_layer": "雪",
+			"soul_campfire": "灵魂营火",
+			"soul_fire": "灵魂火",
+			"soul_lantern": "灵魂灯笼",
 			"soul_sand": "灵魂沙",
+			"soul_soil": "灵魂土",
+			"soul_torch": "灵魂火把",
 			"sponge": "海绵",
 			"spruce_button": "云杉木按钮",
 			"spruce_door": "云杉木门",
 			"spruce_fence_gate": "云杉木栅栏门",
 			"spruce_pressure_plate": "云杉木压力板",
-			"spruce_stairs": "云杉楼梯",
+			"spruce_stairs": "云杉木楼梯",
 			"spruce_standing_sign": "云杉木告示牌",
 			"spruce_trapdoor": "云杉木活板门",
 			"spruce_wall_sign": "墙上的云杉木告示牌",
@@ -27159,14 +27426,19 @@ CA.Library.inner["default"] = {
 			"stonecutter_block": "切石机",
 			"stripped_acacia_log": "去皮金合欢木",
 			"stripped_birch_log": "去皮白桦木",
+			"stripped_crimson_hyphae": "去皮绯红菌核",
+			"stripped_crimson_stem": "去皮绯红菌柄",
 			"stripped_dark_oak_log": "去皮深色橡木",
 			"stripped_jungle_log": "去皮丛林木",
 			"stripped_oak_log": "去皮橡木",
 			"stripped_spruce_log": "去皮云杉木",
+			"stripped_warped_hyphae": "去皮诡异菌核",
+			"stripped_warped_stem": "去皮诡异菌柄",
 			"structure_block": "结构方块",
 			"structure_void": "结构空位",
 			"sweet_berry_bush": "甜浆果丛",
-			"tallgrass": "草丛",
+			"tallgrass": "高草丛",
+			"target": "标靶",
 			"tnt": "TNT",
 			"torch": "火把",
 			"trapdoor": "活板门",
@@ -27174,6 +27446,7 @@ CA.Library.inner["default"] = {
 			"tripwire": "绊线",
 			"tripwire_hook": "绊线钩",
 			"turtle_egg": "海龟蛋",
+			"twisting_vines_block": "缠怨藤植物",
 			"undyed_shulker_box": "未染色的潜影盒",
 			"unlit_redstone_torch": "熄灭的红石火把",
 			"unpowered_comparator": "红石比较器",
@@ -27181,9 +27454,28 @@ CA.Library.inner["default"] = {
 			"vine": "藤蔓",
 			"wall_banner": "墙上的旗帜",
 			"wall_sign": "墙上的告示牌",
+			"warped_button": "诡异木按钮",
+			"warped_door": "诡异木门",
+			"warped_double_slab": "双层诡异木台阶",
+			"warped_fence": "诡异木栅栏",
+			"warped_fence_gate": "诡异木栅栏门",
+			"warped_fungus": "诡异菌",
+			"warped_hyphae": "诡异菌核",
+			"warped_nylium": "诡异菌岩",
+			"warped_planks": "诡异木板",
+			"warped_pressure_plate": "诡异木压力板",
+			"warped_roots": "诡异菌索",
+			"warped_slab": "诡异木台阶",
+			"warped_stairs": "诡异木楼梯",
+			"warped_standing_sign": "诡异木告示牌",
+			"warped_stem": "诡异菌柄",
+			"warped_trapdoor": "诡异木活板门",
+			"warped_wall_sign": "墙上的诡异木告示牌",
+			"warped_wart_block": "诡异疣块",
 			"water": "水",
 			"waterlily": "睡莲",
 			"web": "蜘蛛网",
+			"weeping_vines": "垂泪藤",
 			"wheat": "小麦",
 			"white_glazed_terracotta": "白色带釉陶瓦",
 			"wither_rose": "凋零玫瑰",
@@ -27191,7 +27483,7 @@ CA.Library.inner["default"] = {
 			"wooden_button": "木质按钮",
 			"wooden_door": "木门",
 			"wooden_pressure_plate": "木质压力板",
-			"wooden_slab": "木台阶",
+			"wooden_slab": "木质台阶",
 			"wool": "羊毛",
 			"yellow_flower": "蒲公英",
 			"yellow_glazed_terracotta": "黄色带釉陶瓦"
@@ -27243,6 +27535,7 @@ CA.Library.inner["default"] = {
 			"cooked_rabbit": "熟兔肉",
 			"cooked_salmon": "熟鲑鱼",
 			"cookie": "曲奇",
+			"crimson_sign": "绯红木告示牌",
 			"crossbow": "弩",
 			"darkoak_sign": "深色橡木告示牌",
 			"diamond": "钻石",
@@ -27329,8 +27622,19 @@ CA.Library.inner["default"] = {
 			"muttoncooked": "熟羊肉",
 			"muttonraw": "生羊肉",
 			"name_tag": "命名牌",
-			"nautilus_shell": "鹦鹉螺",
-			"netherbrick": "地狱砖",
+			"nautilus_shell": "鹦鹉螺壳",
+			"netherbrick": "下界砖",
+			"netherite_axe": "下界合金斧",
+			"netherite_boots": "下界合金靴子",
+			"netherite_chestplate": "下界合金胸甲",
+			"netherite_helmet": "下界合金头盔",
+			"netherite_hoe": "下界合金锄",
+			"netherite_ingot": "下界合金锭",
+			"netherite_leggings": "下界合金护腿",
+			"netherite_pickaxe": "下界合金镐",
+			"netherite_scrap": "下界合金碎片",
+			"netherite_shovel": "下界合金锹",
+			"netherite_sword": "下界合金剑",
 			"netherstar": "下界之星",
 			"painting": "画",
 			"paper": "纸",
@@ -27357,6 +27661,7 @@ CA.Library.inner["default"] = {
 			"record_far": "far唱片",
 			"record_mall": "mall唱片",
 			"record_mellohi": "mellohi唱片",
+			"record_pigstep": "pigstep唱片",
 			"record_stal": "stal唱片",
 			"record_strad": "strad唱片",
 			"record_wait": "wait唱片",
@@ -27373,7 +27678,7 @@ CA.Library.inner["default"] = {
 			"slime_ball": "粘液球",
 			"snowball": "雪球",
 			"spawn_egg": "刷怪蛋",
-			"speckled_melon": "闪烁的西瓜",
+			"speckled_melon": "闪烁的西瓜片",
 			"spider_eye": "蜘蛛眼",
 			"splash_potion": "喷溅药水",
 			"spruce_sign": "云杉木告示牌",
@@ -27391,6 +27696,8 @@ CA.Library.inner["default"] = {
 			"trident": "三叉戟",
 			"turtle_helmet": "海龟壳",
 			"turtle_shell_piece": "鳞甲",
+			"warped_fungus_on_a_stick": "诡异菌钓竿",
+			"warped_sign": "诡异木告示牌",
 			"wheat_seeds": "小麦种子",
 			"wooden_axe": "木斧",
 			"wooden_hoe": "木锄",
@@ -27400,6 +27707,7 @@ CA.Library.inner["default"] = {
 			"writable_book": "书与笔"
 		},
 		"sound": {
+			"ambient.cave": "",
 			"ambient.weather.thunder": "打雷声",
 			"ambient.weather.lightning.impact": "打雷声（爆炸）",
 			"ambient.weather.rain": "雨声",
@@ -27874,6 +28182,7 @@ CA.Library.inner["default"] = {
 			"random.anvil_break": "铁砧破坏声",
 			"random.anvil_land": "铁砧放置声",
 			"random.anvil_use": "铁砧使用声",
+			"hit.anvil": "",
 			"random.bow": "投掷器投掷声/发射器发射声/射箭声",
 			"random.bowhit": "箭射中方块或实体/剪刀剪掉绊线/激活的绊线钩破坏声",
 			"random.break": "玩家工具用坏声",
@@ -27975,6 +28284,7 @@ CA.Library.inner["default"] = {
 			"music.menu": "主界面背景音乐",
 			"music.game": "生存模式背景音乐",
 			"music.game.creative": "创造模式背景音乐",
+			"music.game.water": "",
 			"music.game.end": "末地背景音乐",
 			"music.game.endboss": "末影龙主题乐",
 			"music.game.nether": "下界背景音乐",
@@ -28019,6 +28329,7 @@ CA.Library.inner["default"] = {
 			"minecraft:fox": "狐狸",
 			"minecraft:ghast": "恶魂",
 			"minecraft:guardian": "守卫者",
+			"minecraft:hoglin": "疣猪兽",
 			"minecraft:hopper_minecart": "漏斗矿车",
 			"minecraft:horse": "马",
 			"minecraft:husk": "尸壳",
@@ -28034,13 +28345,14 @@ CA.Library.inner["default"] = {
 			"minecraft:mooshroom": "哞菇",
 			"minecraft:moving_block": "移动中的方块(无法用summon生成)",
 			"minecraft:mule": "骡",
-			"minecraft:npc": "NPC(无法用summon生成)",
+			"minecraft:npc": "NPC",
 			"minecraft:ocelot": "豹猫",
 			"minecraft:painting": "画(无法用summon生成)",
 			"minecraft:panda": "熊猫",
 			"minecraft:parrot": "鹦鹉",
 			"minecraft:phantom": "幻翼",
 			"minecraft:pig": "猪",
+			"minecraft:piglin": "猪灵",
 			"minecraft:pillager": "掠夺者",
 			"minecraft:player": "玩家(无法用summon生成)",
 			"minecraft:polar_bear": "北极熊",
@@ -28062,15 +28374,14 @@ CA.Library.inner["default"] = {
 			"minecraft:splash_potion": "丢出的喷溅药水",
 			"minecraft:squid": "鱿鱼",
 			"minecraft:stray": "流浪者",
-			"minecraft:thrown_trident": "掷出的三叉戟",
+			"minecraft:strider": "炽足兽",
+			"minecraft:thrown_trident": "掷出的三叉戟(无法用summon生成)",
 			"minecraft:tnt": "已激活的TNT",
 			"minecraft:tnt_minecart": "TNT矿车",
-			"minecraft:tripod_camera": "相机",
 			"minecraft:tropicalfish": "热带鱼",
 			"minecraft:turtle": "海龟",
 			"minecraft:vex": "恼鬼",
 			"minecraft:villager": "村民",
-			"minecraft:villager_v2": "村民（v2）",
 			"minecraft:vindicator": "卫道士",
 			"minecraft:wandering_trader": "流浪商人",
 			"minecraft:witch": "女巫",
@@ -28081,11 +28392,11 @@ CA.Library.inner["default"] = {
 			"minecraft:wolf": "狼",
 			"minecraft:xp_bottle": "丢出的附魔之瓶",
 			"minecraft:xp_orb": "经验球",
+			"minecraft:zoglin": "僵尸疣猪兽",
 			"minecraft:zombie": "僵尸",
 			"minecraft:zombie_horse": "僵尸马",
-			"minecraft:zombie_pigman": "僵尸猪人",
-			"minecraft:zombie_villager": "僵尸村民",
-			"minecraft:zombie_villager_v2": "僵尸村民（v2）"
+			"minecraft:zombie_pigman": "僵尸猪灵",
+			"minecraft:zombie_villager": "僵尸村民"
 		},
 		"particle_emitter": {
 			"minecraft:arrow_spell_emitter": "",
@@ -28236,6 +28547,7 @@ CA.Library.inner["default"] = {
 		"enchant_type": {
 			"aqua_affinity": "水下速掘",
 			"bane_of_arthropods": "节肢杀手",
+			"binding": "绑定诅咒",
 			"blast_protection": "爆炸保护",
 			"channeling": "引雷",
 			"depth_strider": "深海探索者",
@@ -28266,8 +28578,10 @@ CA.Library.inner["default"] = {
 			"sharpness": "锋利",
 			"silk_touch": "精准采集",
 			"smite": "亡灵杀手",
+			"soul_speed": "灵魂疾行",
 			"thorns": "荆棘",
-			"unbreaking": "耐久"
+			"unbreaking": "耐久",
+			"vanishing": "消失诅咒"
 		},
 		"gamerule_bool": {
 			"commandblockoutput": "命令执行时是否在控制台进行文本提示",
@@ -28310,21 +28624,32 @@ CA.Library.inner["default"] = {
 			"survival": "生存模式",
 			"creative": "创造模式",
 			"adventure": "冒险模式",
-			//"spectator": "旁观模式",
 			"d": "",
 			"s": "",
 			"c": "",
 			"a": "",
-			//"sp": "",
 			"0": "",
 			"1": "",
 			"2": ""
-			//"3": ""
 		},
 		"mobevent": {
 			"minecraft:pillager_patrols_event": "生成灾厄巡逻队",
 			"minecraft:wandering_trader_event": "生成流浪商人",
 			"events_enabled": "启用生物事件"
+		},
+		"entity_slot": {
+			"slot.armor": "马铠",
+			"slot.armor.chest": "胸甲",
+			"slot.armor.feet": "靴子",
+			"slot.armor.head": "头盔",
+			"slot.armor.legs": "腿甲",
+			"slot.chest": "箱子",
+			"slot.enderchest": "末影箱",
+			"slot.hotbar": "快捷栏",
+			"slot.inventory": "物品栏",
+			"slot.saddle": "鞍",
+			"slot.weapon.mainhand": "主手持有",
+			"slot.weapon.offhand": "副手持有"
 		},
 		"bool": {
 			"true": "是",
@@ -28443,11 +28768,11 @@ CA.Library.inner["default"] = {
 		}
 	},
 	"help": {
-		"command": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4",
-		"tilder": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4#.E6.B3.A2.E6.B5.AA.E5.8F.B7",
-		"selector": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4#.E7.9B.AE.E6.A0.87.E9.80.89.E6.8B.A9.E5.99.A8",
-		"nbt": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4#.E6.95.B0.E6.8D.AE.E6.A0.87.E7.AD.BE",
-		"rawjson": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4#.E5.8E.9F.E5.A7.8BJSON.E6.96.87.E6.9C.AC"
+		"command": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4",
+		"tilder": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4#.E6.B3.A2.E6.B5.AA.E5.8F.B7",
+		"selector": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4#.E7.9B.AE.E6.A0.87.E9.80.89.E6.8B.A9.E5.99.A8",
+		"nbt": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4#.E6.95.B0.E6.8D.AE.E6.A0.87.E7.AD.BE",
+		"rawjson": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4#.E5.8E.9F.E5.A7.8BJSON.E6.96.87.E6.9C.AC"
 	},
 	"versionPack": {
 		"base": {
@@ -28548,7 +28873,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/clone"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/clone"
 				},
 				"execute": {
 					"description": "让某一实体在某一位置执行一条命令",
@@ -28572,7 +28897,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/execute"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/execute"
 				},
 				"fill": {
 					"description": "用特定方块全部或部分填充一个区域",
@@ -28650,7 +28975,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/fill"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/fill"
 				},
 				"gamemode": {
 					"description": "设置某个玩家的游戏模式",
@@ -28681,7 +29006,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/gamemode"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/gamemode"
 				},
 				"give": {
 					"description": "给一位玩家一种物品",
@@ -28717,7 +29042,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/give"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/give"
 				},
 				"help": {
 					"description": "显示帮助",
@@ -28740,7 +29065,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/kill"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/kill"
 				},
 				"msg": {
 					"alias": "tell"
@@ -28757,7 +29082,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/say"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/say"
 				},
 				"setblock": {
 					"description": "将一个方块更改为另一个方块",
@@ -28791,7 +29116,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/setblock"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/setblock"
 				},
 				"setworldspawn": {
 					"description": "设置世界出生点",
@@ -28808,7 +29133,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/setworldspawn"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/setworldspawn"
 				},
 				"spawnpoint": {
 					"description": "为特定玩家设置出生点",
@@ -28839,7 +29164,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/spawnpoint"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/spawnpoint"
 				},
 				"summon": {
 					"description": "生成一个实体",
@@ -28859,7 +29184,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/summon"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/summon"
 				},
 				"tell": {
 					"description": "发送一条私密信息给一个或多个玩家",
@@ -28878,7 +29203,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/tell"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/tell"
 				},
 				"testforblock": {
 					"description": "探测某个方块是否在特定位置",
@@ -28902,7 +29227,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/testforblock"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/testforblock"
 				},
 				"testforblocks": {
 					"description": "测试两个区域的方块是否相同",
@@ -28934,7 +29259,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/testforblocks"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/testforblocks"
 				},
 				"time": {
 					"description": "更改或查询游戏中的世界时间",
@@ -29009,14 +29334,14 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/time"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/time"
 				},
 				"toggledownfall": {
 					"description": "切换天气",
 					"noparams": {
 						"description": "如果天气目前晴朗，就会转换成下雨或下雪。如果天气目前是雨雪天气，它将停止下雨下雪。"
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/toggledownfall"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/toggledownfall"
 				},
 				"tp": {
 					"description": "传送实体",
@@ -29090,7 +29415,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/tp"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/tp"
 				},
 				"teleport": {
 					"alias": "tp"
@@ -29131,7 +29456,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/weather"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/weather"
 				},
 				"xp": {
 					"description": "将经验值给予一个玩家",
@@ -29169,7 +29494,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/xp"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/xp"
 				},
 				"?": {
 					"alias": "help"
@@ -29220,7 +29545,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/enchant"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/enchant"
 				}
 			},
 			"minSupportVer": "0.15.90.5"
@@ -29266,7 +29591,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/clear"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/clear"
 				},
 				"difficulty": {
 					"description": "设置游戏难度等级",
@@ -29281,7 +29606,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/difficulty"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/difficulty"
 				},
 				"effect": {
 					"description": "设置玩家及实体的状态效果",
@@ -29333,7 +29658,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/effect"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/effect"
 				},
 				"gamerule": {
 					"description": "设置或查询一条游戏规则的值",
@@ -29388,7 +29713,7 @@ CA.Library.inner["default"] = {
 							]
 						}*/
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/gamerule"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/gamerule"
 				},
 				"me": {
 					"description": "显示一条关于你自己的信息",
@@ -29402,7 +29727,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/me"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/me"
 				},
 				"playsound": {
 					"description": "对指定玩家播放指定声音",
@@ -29442,7 +29767,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/playsound"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/playsound"
 				},
 				"replaceitem": {
 					"description": "用给出的物品替换方块或实体物品栏内的物品",
@@ -29509,20 +29834,7 @@ CA.Library.inner["default"] = {
 								{
 									"type": "enum",
 									"name": "格子类型",
-									"list": {
-										"slot.armor": "马铠",
-										"slot.armor.chest": "胸甲",
-										"slot.armor.feet": "靴子",
-										"slot.armor.head": "头盔",
-										"slot.armor.legs": "腿甲",
-										"slot.chest": "箱子",
-										"slot.enderchest": "末影箱",
-										"slot.hotbar": "快捷栏",
-										"slot.inventory": "物品栏",
-										"slot.saddle": "鞍",
-										"slot.weapon.mainhand": "主手持有",
-										"slot.weapon.offhand": "副手持有"
-									}
+									"list": "entity_slot"
 								},
 								{
 									"type": "uint",
@@ -29552,7 +29864,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/replaceitem"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/replaceitem"
 				},
 				"spreadplayers": {
 					"description": "把实体随机传送到区域内地表的某个位置",
@@ -29584,7 +29896,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/spreadplayers"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/spreadplayers"
 				},
 				"stopsound": {
 					"description": "停止音效播放",
@@ -29619,7 +29931,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/stopsound"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/stopsound"
 				},
 				"testfor": {
 					"description": "检测并统计符合指定条件的实体",
@@ -29634,7 +29946,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/testfor"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/testfor"
 				},
 				"title": {
 					"description": "标题命令相关",
@@ -29754,7 +30066,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/title"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/title"
 				}
 			},
 			"minSupportVer": "1.0.5.0"
@@ -29810,7 +30122,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/particle"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/particle"
 				}
 			},
 			"minSupportVer": "1.0.5.0",
@@ -29903,7 +30215,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/detect"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/detect"
 				}
 			}
 		},
@@ -29924,7 +30236,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/alwaysday"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/alwaysday"
 				},
 				"daylock": {
 					"alias": "alwaysday"
@@ -30031,7 +30343,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/tickingarea"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/tickingarea"
 				},
 				"tp": {
 					"patterns": {
@@ -30670,7 +30982,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E8%AE%B0%E5%88%86%E6%9D%BF#.E5.91.BD.E4.BB.A4.E5.88.97.E8.A1.A8"
+					"help": "https://wiki.biligame.com/mc/%E8%AE%B0%E5%88%86%E6%9D%BF#.E5.91.BD.E4.BB.A4.E5.88.97.E8.A1.A8"
 				}
 			}
 		},
@@ -30776,6 +31088,11 @@ CA.Library.inner["default"] = {
 			"maxSupportVer": "1.7.*"
 		},
 		"1.8.0.8": {
+			"enums": {
+				"gamerule_int": {
+					"randomtickspeed": "每一游戏刻中每一区块发生随机刻的次数"
+				}
+			},
 			"commands": {
 				"particle": {
 					"description": "在指定位置显示颗粒效果",
@@ -30794,12 +31111,12 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/particle"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/particle"
 				},
 				"reload": {
 					"description": "重新加载数据包",
 					"noparams": {},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/reload"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/reload"
 				}
 			},
 			"minSupportVer": "1.8.0.8"
@@ -30818,7 +31135,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/function"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/function"
 				}
 			},
 			"minSupportVer": "1.8.0.10"
@@ -30848,7 +31165,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/tellraw"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/tellraw"
 				}
 			},
 			"minSupportVer": "1.9.0.0"
@@ -30924,7 +31241,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/tag"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/tag"
 				},
 				"titleraw": {
 					"description": "标题命令相关（使用JSON文本）",
@@ -31044,7 +31361,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/titleraw"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/titleraw"
 				}
 			},
 			"minSupportVer": "1.9.0.2"
@@ -31093,7 +31410,7 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/worldage"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/worldage"
 				}
 			},
 			"minSupportVer": "1.11.0.1",
@@ -31130,12 +31447,17 @@ CA.Library.inner["default"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/mobevent"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/mobevent"
 				}
 			},
 			"minSupportVer": "1.11.0.3"
 		},
 		"1.12.0.2": {
+			"enums": {
+				"gamerule_int": {
+					"spawnradius": "默认重生点的重生半径"
+				}
+			},
 			"commands": {
 				"summon": {
 					"patterns": {
@@ -31490,6 +31812,140 @@ CA.Library.inner["default"] = {
 				}
 			},
 			"minSupportVer": "1.14.0.51"
+		},
+		"1.16.0.57": {
+			"commands": {
+				"kick": {
+					"description": "将指定的玩家踢出服务器",
+					"patterns": {
+						"named": {
+							"params": [
+								{
+									"type": "selector",
+									"name": "目标玩家",
+									"target": "player"
+								},
+								{
+									"type": "string",
+									"name": "原因"
+								}
+							]
+						}
+					}
+				},
+				"replaceitem": {
+					"patterns": {
+						"block_oldItemHandling": {
+							"description": "用给出的物品替换方块内的物品",
+							"params": [
+								{
+									"type": "plain",
+									"name": "block",
+									"prompt": "替换方块内物品"
+								},
+								{
+									"type": "position",
+									"name": "坐标"
+								},
+								{
+									"type": "enum",
+									"name": "格子类型",
+									"list": {
+										"slot.container": "容器"
+									}
+								},
+								{
+									"type": "uint",
+									"name": "格子ID"
+								},
+								{
+									"type": "enum",
+									"name": "旧物品处理方式",
+									"list": {
+										"destroy": "[默认]直接替换为目标物品",
+										"keep": "如果目标格子被占据，则不替换该格内的物品"
+									}
+								},
+								{
+									"type": "string",
+									"name": "物品ID",
+									"suggestion": "item"
+								},
+								{
+									"type": "uint",
+									"name": "数量",
+									"optional": true
+								},
+								{
+									"type": "uint",
+									"name": "数据值",
+									"optional": true
+								},
+								{
+									"type": "json",
+									"name": "数据标签",
+									"component": "item_component",
+									"optional": true
+								}
+							]
+						},
+						"entity_oldItemHandling": {
+							"description": "用给出的物品替换实体物品栏内的物品",
+							"params": [
+								{
+									"type": "plain",
+									"name": "entity",
+									"prompt": "替换实体内物品"
+								},
+								{
+									"type": "selector",
+									"name": "目标",
+									"target": "entity"
+								},
+								{
+									"type": "enum",
+									"name": "格子类型",
+									"list": "entity_slot"
+								},
+								{
+									"type": "uint",
+									"name": "格子ID"
+								},
+								{
+									"type": "enum",
+									"name": "旧物品处理方式",
+									"list": {
+										"destroy": "[默认]直接替换为目标物品",
+										"keep": "如果目标格子被占据，则不替换该格内的物品"
+									}
+								},
+								{
+									"type": "string",
+									"name": "物品ID",
+									"suggestion": "item"
+								},
+								{
+									"type": "uint",
+									"name": "数量",
+									"optional": true
+								},
+								{
+									"type": "uint",
+									"name": "数据值",
+									"optional": true
+								},
+								{
+									"type": "json",
+									"name": "数据标签",
+									"component": "item_component",
+									"optional": true
+								}
+							]
+						}
+					}
+				}
+			},
+			"minSupportVer": "1.16.0.57"
 		}
 	}
 };
@@ -31501,10 +31957,11 @@ CA.Library.inner["addition"] = {
 	"version": [0, 0, 1],
 	"require": ["acf728c5-dd5d-4a38-b43d-7c4f18149fbd"],
 	"minSupportVer": "0.16.0",
-	"targetSupportVer": "1.14.2.51",
+	"targetSupportVer": "1.16.0.57",
 	"commands": {},
 	"enums": {
 		"structure": {
+			"bastionremnant": "堡垒遗迹",
 			"buriedtreasure": "埋藏的宝藏",
 			"endcity": "末地城",
 			"fortress": "下界要塞",
@@ -31512,6 +31969,7 @@ CA.Library.inner["addition"] = {
 			"mineshaft": "废弃矿井",
 			"monument": "海底遗迹",
 			"pillageroutpost": "掠夺者前哨站",
+			"ruinedportal": "废弃传送门",
 			"ruins": "水下遗迹",
 			"shipwreck": "沉船",
 			"stronghold": "要塞",
@@ -31540,12 +31998,12 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/deop"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/deop"
 				},
 				"list": {
 					"description": "列出在服务器上的玩家",
 					"noparams": true,
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/list"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/list"
 				},
 				"op": {
 					"description": "给予一位玩家管理员身份",
@@ -31560,7 +32018,7 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/op"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/op"
 				},
 				"wsserver": {
 					"description": "尝试连接到指定的WebSocket服务器上",
@@ -31574,7 +32032,7 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/wsserver"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/wsserver"
 				}
 			},
 			"minSupportVer": "0.15.90.0"
@@ -31592,7 +32050,7 @@ CA.Library.inner["addition"] = {
 							}]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/locate"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/locate"
 				}
 			},
 			"minSupportVer": "0.17"
@@ -31615,7 +32073,7 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/transferserver"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/transferserver"
 				}
 			},
 			"minSupportVer": "1.0.3.0",
@@ -31635,7 +32093,7 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/setmaxplayers"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/setmaxplayers"
 				}
 			},
 			"minSupportVer": "1.1.0.55"
@@ -31712,7 +32170,7 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/videostream"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/videostream"
 				},
 				"videostreamaction": {
 					"description": "执行一个视频流操作",
@@ -31730,10 +32188,11 @@ CA.Library.inner["addition"] = {
 							]
 						}
 					},
-					"help": "https://minecraft-zh.gamepedia.com/%E5%91%BD%E4%BB%A4/videostreamaction"
+					"help": "https://wiki.biligame.com/mc/%E5%91%BD%E4%BB%A4/videostreamaction"
 				}
 			},
-			"minSupportVer": "1.10.0.3"
+			"minSupportVer": "1.10.0.3",
+			"maxSupportVer": "1.16.0.55"
 		},
 		"1.12.0.2": {
 			"commands": {
@@ -31762,7 +32221,8 @@ CA.Library.inner["addition"] = {
 					}
 				}
 			},
-			"minSupportVer": "1.12.0.2"
+			"minSupportVer": "1.12.0.2",
+			"maxSupportVer": "1.16.0.55"
 		}
 	}
 };
@@ -32090,6 +32550,6 @@ Loader.lockMethods(CA.Library);
 Loader.lockProperty(CA, "Library");
 Loader.lockMethods(CA, ["showDonate", "showDonateDialog"]);
 Loader.freezeFields(Updater, ["sources", "betaSources"]);
-Loader.protectMethods(MapScript.global, "UserManager", ["getSettingItem", "processUriAction", "enqueueExp", "showSyncExp", "showAuthorize", "initialize"]);
+Loader.protectMethods(MapScript.global, "UserManager", ["getSettingItem", "processUriAction", "enqueueExp", "showAuthorize", "initialize"]);
 Loader.protectMethods(MapScript.global, "IssueService", ["showIssuesWithAgreement"]);
 });
